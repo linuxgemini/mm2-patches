@@ -1,0 +1,52 @@
+--- index-old.html	2023-08-28 03:14:20.522477182 +0300
++++ index-new.html	2023-08-28 03:13:09.002054661 +0300
+@@ -1017,14 +1017,14 @@
+ 
+     <script src="/js/jQueryRotateCompressed.2.3.js"></script>
+ 
+-    <script src="https://code.highcharts.com/highcharts.js"></script>
+-    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+-    <script src="https://code.highcharts.com/modules/data.js"></script>
+-    <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+-    <script src="https://code.highcharts.com/modules/heatmap.js"></script>
+-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+-    <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+-    <script src="https://code.highcharts.com/modules/export-data.js"></script>
++    <script src="https://bcdn.ilter.is/mm2js/highcharts.js"></script>
++    <script src="https://bcdn.ilter.is/mm2js/highcharts-more.js"></script>
++    <script src="https://bcdn.ilter.is/mm2js/modules/data.js"></script>
++    <script src="https://bcdn.ilter.is/mm2js/modules/solid-gauge.js"></script>
++    <script src="https://bcdn.ilter.is/mm2js/modules/heatmap.js"></script>
++    <script src="https://bcdn.ilter.is/mm2js/modules/exporting.js"></script>
++    <script src="https://bcdn.ilter.is/mm2js/modules/offline-exporting.js"></script>
++    <script src="https://bcdn.ilter.is/mm2js/modules/export-data.js"></script>
+ 
+     <script src="/js/highcharts-downsample.js"></script>
+ 
+@@ -1057,7 +1057,7 @@
+                     cursor: 'move'
+                 });
+             }
+-            // loading and starting Application instance
++            // .1
+             $.ajax({
+                 url: "/js/app-instance.js",
+                 cache: true,
+@@ -1074,7 +1074,7 @@
+         function injectGMapsLib(key) {
+             var scriptElement = $("<script>");
+             $(scriptElement).attr("type", "text/javascript");
+-            var libUrl = "https://maps.googleapis.com/maps/api/js?libraries=geometry&v=3.exp&callback=onMapLoad";
++            var libUrl = "https://maps.googleapis.com/maps/api/js?libraries=geometry&v=3.51&callback=onMapLoad";
+             if (key != null)
+                 libUrl += "&key=" + key;
+             $(scriptElement).attr("src", libUrl);
+@@ -1087,7 +1087,7 @@
+             RpcCall("googleKey", {}, function(resp) {
+                 injectGMapsLib(resp.key);
+             }, function(msg) {
+-                injectGMapsLib(null); // run keyless
++                injectGMapsLib(null);
+             });
+         }
+         tryStart();

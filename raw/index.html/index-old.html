@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+    <title>ModeSMixer2</title>
+
+    <style type="text/css">
+        html,
+        body,
+        #map-canvas {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map-canvas {
+            height: 100%;
+        }
+
+        body {
+            padding-top: 55px;
+        }
+
+    </style>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+
+    <!-- Le styles -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="/css/local.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <img style="max-width:68px; margin-top: -1px;" src="/img/logo.png" />
+                </a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-navbar-collapse">
+                <ul class="nav navbar-nav navbar-left">
+                    <li class="active"><a href="#" id="btn-charts">CHARTS</a></li>
+                    <li><a href="#" id="btn-flights">FLIGHTS</a></li>
+                    <li><a href="#" id="btn-map">MAP</a></li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">MISC<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" id="btn-stats">STATS</a></li>
+                            <li><a href="#" id="btn-log">LOG</a></li>
+                            <li><a href="#" id="btn-notams">NOTAMS</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="navbar-text">
+                        <span id="value-version"></span>
+                    </li>
+                    <li class="navbar-text">
+                        <img src="/img/adsb.png" height="18" title="Tracking with ADS-B" />
+                        <span id="value-adsb">0</span>
+                    </li>
+                    <li class="navbar-text">
+                        <img src="/img/modes.png" height="18" title="Tracking with Mode S" />
+                        <span id="value-modes">0</span>
+                    </li>
+                    <li class="navbar-text" id="mlat-status" style="display: none;">
+                        <img src="/img/mlat.png" height="18" title="Tracking with MLAT" />
+                        <span id="value-mlat">0</span>
+                    </li>
+                    <li class="navbar-text">
+                        <span class="glyphicon glyphicon-time" title="Coordinated Universal Time"></span>
+                        <span id="value-utc-time">12.00</span>
+                        UTC
+                    </li>
+                    <li class="navbar-text">
+                        <span class="glyphicon glyphicon-time" title="Local Time"></span>
+                        <span id="value-local-time">18.00</span>
+                        <span id="value-local-name">NOVT</span>
+                    </li>
+                    <li style="display:none;">
+                        <button id="airlist-btn" type="button" class="btn btn-default btn-sm navbar-btn glyphicon glyphicon-list-alt" title="Flights List"></button>
+                    </li>
+                    <li>&nbsp;</li>
+                    <li style="display:none;">
+                        <button id="map-settings-btn" type="button" class="btn btn-default btn-sm navbar-btn glyphicon glyphicon-wrench" title="Settings"></button>
+                    </li>
+                    <li>&nbsp;</li>
+                </ul>
+            </div>
+        </div><!-- /.container-fluid -->
+    </nav>
+
+<!--    <div class="table-responsive"> -->
+        <div class="container-fluid" id="tab-charts">
+            <div class="row">
+
+                <div class="col-sm-6" style="padding-right: 7px;">
+                    <div id="distancesChart" style="width:100%; height:480px;"></div>
+                </div>
+
+                <div class="col-sm-6" style="padding-left: 7px;">
+                    <div id="hoursChart" style="width:100%; height:480px;"></div>
+                </div>
+
+           <div class="clearfix hidden-xs"></div> <br />
+
+                <div class="col-sm-6" style="padding-right: 7px;">
+                    <div id="polarChart" style="width:100%; height:480px;"></div>
+                </div>
+
+                <div class="col-sm-6" style="padding-left: 7px;">
+                    <div id="msgChart" style="width:100%; height:240px;"></div>
+                    <div id="bwChart" style="width:100%; height:240px;"></div>
+                </div>
+
+            <div class="clearfix hidden-xs"></div>
+
+            <br />
+
+                <div class="col-sm-6" style="padding-right: 7px;">
+                    <div id="hourlyChart" style="width:100%; height:400px;"></div>
+                </div>
+
+                <div class="col-sm-6" style="overflow-x: auto; padding-left: 7px;">
+                    <div class="stat-table-heading" style="display: none;">Messages Reported</div>
+                    <table class="table table-condensed table-striped" id="mstat-msgs-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="adsb-row">
+                                <th>ADSB</th>
+                            </tr>
+                            <tr class="mlat-row">
+                                <th scope="row">MLAT</th>
+                            </tr>
+                            <tr class="modes-row">
+                                <th scope="row">ModeS</th>
+                            </tr>
+                            <tr class="total-row">
+                                <th scope="row">Total</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="stat-table-heading" style="display: none;">Aircrafts Reported</div>
+                    <table class="table table-condensed table-striped" id="mstat-aircrafts-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="adsb-row">
+                                <th>ADSB</th>
+                            </tr>
+                            <tr class="mlat-row">
+                                <th scope="row">MLAT</th>
+                            </tr>
+                            <tr class="modes-row">
+                                <th scope="row">ModeS</th>
+                            </tr>
+                            <tr class="total-row">
+                                <th scope="row">Total</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        <!--/#charts-->
+<!--    </div> -->
+
+    <div class="table-responsive">
+        <div class="container" id="tab-stats" style="display:none;">
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <table class="table table-condensed table-striped">
+                        <tr>
+                            <th colspan="2"> TOTAL MESSAGES</th>
+                            <th colspan="3"> <img src="/img/modes.png" height="18" />&nbsp; MODE S</th>
+                            <th colspan="2"> <img src="/img/adsb.png" height="18" />&nbsp; ADS-B</th>
+                            <th> <img src="/img/mlat.png" height="18" />&nbsp; MLAT</th>
+                            <th> <img src="/img/modeac.png" height="18" />&nbsp; MODE A/C</th>
+                        </tr>
+                        <tr>
+                            <th>RECEIVED</th>
+                            <th>OUTPUT BYTES</th>
+                            <th>TOTAL</th>
+                            <th>LONG</th>
+                            <th>SHORT</th>
+                            <th>TOTAL</th>
+                            <th>POSITIONS</th>
+                            <th>TOTAL</th>
+                            <th>TOTAL</th>
+                        </tr>
+                        <tr>
+                            <td><span id="msg-total-msg"></span></td>
+                            <td><span id="msg-total-bytes"></span></td>
+                            <td><span id="msg-total-modes"></span></td>
+                            <td><span id="msg-modes-long"></span></td>
+                            <td><span id="msg-modes-short"></span></td>
+                            <td><span id="msg-adsb"></span></td>
+                            <td><span id="msg-total-pos"></span></td>
+                            <td><span id="msg-total-mlat"></span></td>
+                            <td><span id="msg-total-ac"></span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-6">
+                    <table class="table table-condensed table-striped" id="table-df">
+                        <thead>
+                            <tr>
+                                <th width="20%">DF</th>
+                                <th>MESSAGES</th>
+                                <th width="63%">DESCRIPTION</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="col-md-6 col-xs-12">
+                    <table class="table table-condensed table-striped" id="table-counters">
+                        <thead>
+                            <tr>
+                                <th>FORMAT</th>
+                                <th>COUNT</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="clearfix"></div></br>
+                <div class="col-xs-12 col-md-12">
+                    <table class="table table-condensed table-striped" id="table-adsb">
+                        <thead>
+                            <tr>
+                                <th width="10%">DF17 TYPE</th>
+                                <th width="8%">MESSAGES</th>
+                                <th>DEFINITION</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <table class="table table-condensed table-striped" id="table-data">
+                        <thead>
+                            <tr>
+                                <th width="51%">UPTIME</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>START TIME</td>
+                                <td><span id="valueStartTime"></span></td>
+                            </tr>
+                            <tr>
+                                <td>DURATION</td>
+                                <td><span id="valueUptime"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--/.container-->
+    </div>
+
+    <div class="table-responsive">
+        <div class="container" id="tab-flights" style="display:none;">
+            <div class="row">
+                <div class="col-xs-12">
+                    <table class="table table-condensed table-striped" id="table-flights">
+                        <thead>
+                            <tr style='white-space: pre;'>
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                                <th nowrap>ICAO</th>
+                                <th nowrap>CALLSIGN&nbsp;</th>
+                                <th nowrap>SQK</th>
+                                <th nowrap>REGISTR&nbsp;</th>
+                                <th nowrap>SILHOUETTE</th>
+                                <th nowrap>TYPE</th>
+                                <th nowrap>TRK</th>
+                                <th nowrap>ALT, ft</th>
+                                <th nowrap>SPD, kt</th>
+                                <th nowrap>V/S, fpm</th>
+                                <th nowrap>LAT</th>
+                                <th nowrap>LON</th>
+                                <th nowrap>STATUS</th>
+                                <th nowrap>AZ</th>
+                                <th nowrap id="distance-column">DIST, nmi</th>
+                                <th nowrap>MSGS</th>
+                                <th nowrap>DURATION</th>
+                                <th nowrap>XPNDR</th>
+                                <th style="display: none;" class="col-md-1">SOURCE&nbsp;ID&nbsp;</th>
+                                <th nowrap>SGL&nbsp;</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--/.container-->
+    </div>
+
+    <div class="table-responsive">
+        <div class="container-fluid" id="tab-log" style="display:none;">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body" id="logPanel">
+                            <div id="log" class="log"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/.container-->
+    </div>
+
+    <div class="table-responsive">
+        <div class="container" id="tab-notams" style="display:none;">
+            <div align="right">
+                Enter the 4-letter ICAO identifier: <input id="airportNotamIcao" value="" maxlength="4" size="5">
+                <button type="button" id="updateNotamsButton" class="btn btn-default btn-sm">Ok</button>
+            </div>
+            <div class="modal fade bs-example-modal-lg" id="notamModal">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id='notam-modal-title'></h4>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-condensed table-striped" id="notam-modal-table">
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Ok</button>
+                        </div>
+                    </div> <!-- /.modal-content -->
+                </div> <!-- /.modal-dialog -->
+            </div> <!-- /.modal -->
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <table class="table table-condensed table-striped" id="table-notams">
+                        <thead>
+                            <tr>
+                                <th nowrap>LOCATION</th>
+                                <th nowrap>ID</th>
+                                <th nowrap>CLASS</th>
+                                <th nowrap>START DATE/TIME</th>
+                                <th nowrap>END DATE/TIME</th>
+                                <th nowrap>CONDITION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notams-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--/.container-->
+    </div>
+
+    <div id="LatLonText" style="display:none;" class="mapInfoLabels"></div>
+    <div id="MetarText" style="display:none;" class="mapInfoLabels"></div>
+    <div id="TafText" style="display:none;" class="mapInfoLabels"></div>
+
+    <div class="modal fade" id="alert-message">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"><span id="alert-title">ModeSMixer2</span></h4>
+                </div>
+                <div class="modal-body">
+                    <p><span id="alert-text">Error</span></p>
+                </div>
+            </div> <!-- /.modal-content -->
+        </div> <!-- /.modal-dialog -->
+    </div> <!-- /.modal -->
+
+    <div class="modal fade bs-example-modal-lg" id="metar-info">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">METAR Info</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="metar-info-text"></div>
+                </div>
+            </div> <!-- /.modal-content -->
+        </div> <!-- /.modal-dialog -->
+    </div> <!-- /.modal -->
+
+    <div class="modal fade bs-example-modal-lg" id="taf-info">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">TAF Info</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="taf-info-text">
+                        <table id='taf-fields-table' border="0">
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- /.modal-content -->
+        </div> <!-- /.modal-dialog -->
+    </div> <!-- /.modal -->
+
+    <div class="modal fade" id="map-settings">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Settings</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Aircraft Labels</div>
+                        <div class="panel-body">
+                            <p>1 ROW&nbsp;
+                                <select class="selectpicker">
+                                    <option value="NONE">None</option>
+                                    <option value="ICAO">ICAO</option>
+                                    <option value="CS">Callsign</option>
+                                    <option value="FL">Flight Level</option>
+                                    <option value="SQUAWK">Squawk</option>
+                                    <option value="REG">Registration</option>
+                                    <option value="TYPE">Type</option>
+                                    <option value="SPEED">Speed</option>
+                                    <option value="SL">Signal Level</option>
+                                    <option value="SOL">Source ID</option>
+                                </select>
+                            </p>
+                            <p>2 ROW&nbsp;
+                                <select class="selectpicker">
+                                    <option value="NONE">None</option>
+                                    <option value="ICAO">ICAO</option>
+                                    <option value="CS">Callsign</option>
+                                    <option value="FL">Flight Level</option>
+                                    <option value="SQUAWK">Squawk</option>
+                                    <option value="REG">Registration</option>
+                                    <option value="TYPE">Type</option>
+                                    <option value="SPEED">Speed</option>
+                                    <option value="SL">Signal Level</option>
+                                    <option value="SOL">Source ID</option>
+                                </select>
+                            </p>
+                            <p>3 ROW&nbsp;
+                                <select class="selectpicker">
+                                    <option value="NONE">None</option>
+                                    <option value="ICAO">ICAO</option>
+                                    <option value="CS">Callsign</option>
+                                    <option value="FL">Flight Level</option>
+                                    <option value="SQUAWK">Squawk</option>
+                                    <option value="REG">Registration</option>
+                                    <option value="TYPE">Type</option>
+                                    <option value="SPEED">Speed</option>
+                                    <option value="SL">Signal Level</option>
+                                    <option value="SOL">Source ID</option>
+                                </select>
+                            </p>
+                            <p>4 ROW&nbsp;
+                                <select class="selectpicker">
+                                    <option value="NONE">None</option>
+                                    <option value="ICAO">ICAO</option>
+                                    <option value="CS">Callsign</option>
+                                    <option value="FL">Flight Level</option>
+                                    <option value="SQUAWK">Squawk</option>
+                                    <option value="REG">Registration</option>
+                                    <option value="TYPE">Type</option>
+                                    <option value="SPEED">Speed</option>
+                                    <option value="SL">Signal Level</option>
+                                    <option value="SOL">Source ID</option>
+                                </select>
+                            </p>
+                            <p>5 ROW&nbsp;
+                                <select class="selectpicker">
+                                    <option value="NONE">None</option>
+                                    <option value="ICAO">ICAO</option>
+                                    <option value="CS">Callsign</option>
+                                    <option value="FL">Flight Level</option>
+                                    <option value="SQUAWK">Squawk</option>
+                                    <option value="REG">Registration</option>
+                                    <option value="TYPE">Type</option>
+                                    <option value="SPEED">Speed</option>
+                                    <option value="SL">Signal Level</option>
+                                    <option value="SOL">Source ID</option>
+                                </select>
+                            </p>
+                            <p>6 ROW&nbsp;
+                                <select class="selectpicker">
+                                    <option value="NONE">None</option>
+                                    <option value="ICAO">ICAO</option>
+                                    <option value="CS">Callsign</option>
+                                    <option value="FL">Flight Level</option>
+                                    <option value="SQUAWK">Squawk</option>
+                                    <option value="REG">Registration</option>
+                                    <option value="TYPE">Type</option>
+                                    <option value="SPEED">Speed</option>
+                                    <option value="SL">Signal Level</option>
+                                    <option value="SOL">Source ID</option>
+                                </select>
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        Enter the airport's 4-letter ICAO identifier: 
+                        <input id="airportIcao" value="" style="width: 68px;" maxlength="4" size="4">
+                    </div>
+                    <label class="checkbox-inline">
+                        <input id="updateTafCheckBox" type="checkbox" value="" checked="checked"> Display TAF
+                    </label>
+                    <label class="checkbox-inline">
+                        <input id="updateMetarCheckBox" type="checkbox" value="" checked="checked">Display METAR
+                    </label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Ok</button>
+                </div>
+            </div> <!-- /.modal-content -->
+        </div> <!-- /.modal-dialog -->
+    </div> <!-- /.modal -->
+
+    <div class="aircraftList" id="aircraft-list" style="display:none;">
+        <table class="table table-condensed table-striped" id="aircraft-list-table">
+            <thead>
+                <tr style='white-space: pre;'>
+                    <th>&nbsp;</th>
+                    <th nowrap>CALLSIGN</th>
+                    <th nowrap>SQK</th>
+                    <th nowrap>REGISTR</th>
+                    <th nowrap>ICAO</th>
+                    <th nowrap>SILHOUETTE</th>
+                    <th nowrap>TYPE</th>
+                    <th style="text-align: right;" nowrap>TTRK</th>
+                    <th style="text-align: right;" nowrap>ALT</th>
+                    <th style="text-align: right;" nowrap>GS</th>
+                    <th>&nbsp;</th>
+                    <th nowrap style="display: none;" class="col-md-1">Identificator&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Flight Desk panel start  -->
+    <div class="container" id="tab-map" style="display:none;">
+        <div id="map_canvas"></div>
+        <div class="projectionWindow" id="projWindow" style="display: none;">
+            <div align="left" id="fGraphWindowHeader">
+                <button type="button" class="close pull-left" style="font-size: 14px;" id="projWindowClose">
+                    <span class="glyphicon glyphicon-remove-circle"></span>
+                </button>
+            </div>
+            <div id="flightGraphCanvas" class="flightGraphCanvas">
+            </div>
+        </div>
+        <div id="posModalWindow" class="infoSmallWindow" style="display: none;">
+            <div align="left">
+                <button type="button" class="close pull-left" style="font-size: 14px;" id="closeFlightDesk">
+                    <span class="glyphicon glyphicon-remove-circle"></span>
+                </button>
+            </div>
+            <table class="table table-bordered modalInfoTable">
+                <tr>
+                    <td colspan="2" class="equal">
+                        TGT TRK<br />
+                        <span id="modalTTRK" class="infoSpan" data-toggle="tooltip" data-placement="right" title="Target Track Angle">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td class="equal">
+                        TGT HDG<br />
+                        <span id="modalTHDG" class="infoSpan" data-toggle="tooltip" data-placement="right" title="Target Heading Angle">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td class="equal">
+                        MCP ALT<br />
+                        <span id="modalMCP" class="infoSpan" data-toggle="tooltip" data-placement="right" title="MCP/FCU selected Altitude">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td class="equal">
+                        FMS ALT<br />
+                        <span id="modalFMS" class="infoSpan" data-toggle="tooltip" data-placement="right" title="FMS assigned Altitude">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td class="equal">
+                        BARO<br />
+                        <span id="modalQnh" class="infoSpan" data-toggle="tooltip" data-placement="right" title="Barometric altitude reference">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td class="equal">
+                        A/P<br />
+                        <span class="infoSpan" id="modalAP" data-toggle="tooltip" data-placement="right" title="Autopilot is active or not">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td class="equal">
+                        ALT HLD<br />
+                        <span class="infoSpan" id="modalAHOLD" data-toggle="tooltip" data-placement="right" title="Altitude Hold mode to maintain a barometric altitude reference is active or not">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td class="equal">
+                        APP<br />
+                        <span class="infoSpan" id="modalAPPR" data-toggle="tooltip" data-placement="left" title="Approach mode to capture and track localizer and glideslope is active or not">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td class="equal">
+                        VNAV<br />
+                        <span class="infoSpan" id="modalVNAV" data-toggle="tooltip" data-placement="left" title="Vertical Navigation mode is active or not">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        TRUE TRK<br />
+                        <span id="modalTrack" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td>
+                        MAG TRK<br />
+                        <span id="modalTrackM" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td class="equal">
+                        MAG HDG<br />
+                        <span id="modalMHDG" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td>
+                        ALT
+                        <br />
+                        <span id="modalAlt" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                        <br />
+                        <span class="modalTableBrace">[ </span>
+                        <span id="modalAltM" class="modalTableAddInfo"><span class="glyphicon glyphicon-question-sign" style="color: silver;"></span></span>
+                        <span class="modalTableBrace"> ]</span>
+                    </td>
+                    <td align="center">
+                        <span>
+                            <img id="modalVspeedArrow" />
+                        </span>
+                    </td>
+                    <td>
+                        V/S<br />
+                        <span id="modalVSpeed" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                        <br />
+                        <span class="modalTableBrace">[ </span>
+                        <span id="modalVSpeedM" class="modalTableAddInfo">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                        <span class="modalTableBrace"> ]</span>
+                    </td>
+                    <td>
+                        GS<br />
+                        <span id="modalSpeed" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                        <br />
+                        <span class="modalTableBrace">[ </span>
+                        <span id="modalSpeedM" class="modalTableAddInfo">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                        <span class="modalTableBrace"> ]</span>
+                    </td>
+                    <td class="equal">
+                        TAS<br />
+                        <span id="modalTAS" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                        <br />
+                        <span class="modalTableBrace">[ </span>
+                        <span id="modalTASM" class="modalTableAddInfo">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                        <span class="modalTableBrace"> ]</span>
+                    </td>
+                    <td class="equal">
+                        IAS<br />
+                        <span id="modalIAS" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                        <br />
+                        <span class="modalTableBrace">[ </span>
+                        <span id="modalIASM" class="modalTableAddInfo">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                        <span class="modalTableBrace"> ]</span>
+                    </td>
+                    <td class="equal">
+                        MACH<br />
+                        <span id="modalMACH" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <span id="modalCallsign" class="infoCallsign infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td colspan="3">
+                        ICAO<br />
+                        <span id="modalIcao" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td colspan="3">
+                        <span class="modalTableCaption">SQK</span>
+                        <br />
+                        <span id="modalSquawk" class="infoSpan">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                    <td>
+                        TCAS<br />
+                        <span class="infoSpan" id="modalTCAS" data-toggle="tooltip" data-placement="left" title="Traffic alert and Collision Avoidance System is active or not">
+                            <span class="glyphicon glyphicon-question-sign" style="color: silver;"></span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- Flight Desk panel end  -->
+
+        <!-- Formular start -->
+        <div class="infoWindow" style="display:none;">
+            <button type="button" class="close" id="infoWindow-close">
+                <span class="glyphicon glyphicon-remove-circle" style="font-size: 14px"></span>
+            </button>
+            <table class="table table-bordered infoTable">
+                <tr>
+                    <td colspan="2" class="callsign-hl">
+                        <span id="valueInfoCallsign" class="infoCallsign"></span><br />
+                        <span id="valueInfoOperator"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"><span id="valueInfoRoute" class="infoRoute"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="vertical-align:middle;height:40px;width:50%">ICAO<br />
+                        <span id="valueInfoIcao">
+                        </span><br />
+                        <span class="addInfo" id="valueInfoIcaoRa"></span>
+                    </td>
+                    <td style="vertical-align:middle;height:40px;width:50%">SQK<br /><span id="valueInfoSquawk"></span>
+                    </td>
+                </tr>
+                <tr class="callsign-hl">
+                    <td class="infoWindowSpacing" colspan="2"></td>
+                </tr>
+                <tr>
+                    <td>TRK
+                        <br />
+                        <span id="valueInfoTrack" class="trackText" data-toggle="tooltip" data-placement="top" title="True track"></span>
+                        <br /> [
+                        <span class="addInfo" id="valueInfoMagneticTrack" data-toggle="tooltip" data-placement="top" title="Magnetic track"></span>
+                        ]
+                    </td>
+                    <td>ALT<span id="valueInfoVspeedArrow" class="glyphicon glyphicon-arrow-left pull-right" style="color: #5BC0DE;"></span><br />
+                        <span id="valueInfoAltitude" class="altText" data-toggle="tooltip" data-placement="left" title=""></span>
+                        <br /> [
+                        <span class="addInfo" id="valueInfoAltitudeM"></span>
+                        ]
+                        <br />
+                        <span class="addInfo" id="valueInfoAltitudeGnd"></span>
+                        <p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>GS
+                        <br />
+                        <span id="valueInfoSpeed" class="speedText" data-toggle="tooltip" data-placement="right" title=""></span>
+                        <br /> [
+                        <span class="addInfo" id="valueInfoSpeedKMH"></span>
+                        ]
+                    </td>
+                    <td>V/S<br /><span id="valueInfoVSpeed" class="vSpeedText" data-toggle="tooltip" data-placement="left" title=""></span>
+                        <br /> [
+                        <span class="addInfo" id="valueInfoVSpeedMS"></span>
+                        ]<p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>REG<br /><span id="valueInfoRegistration"></span></td>
+                    <td>CNTRY
+                        <span class="pull-right">
+                            <img id="countryFlagImage" />
+                        </span>
+                        <br />
+                        <span id="valueInfoCountry"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">TYPE<span id="valueInfoAircraftTypeCode" class="pull-right"></span><br />
+                        <span id="valueInfoAircraftType"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="aircraftImage">
+                        <a id="valueInfoImageLink" target="_blank">
+                            <img src="/img/aircraft.jpg" id="valueInfoAircraftImage" />
+                        </a>
+                    </td>
+                </tr>
+                <tr class="callsign-hl">
+                    <td class="infoWindowSpacing" colspan="2"></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="nopadding">
+                        <a class="btn btn-default btn-xs btn-block" href="#" role="button" id="fmsButton" title="Push">FLIGHT DECK / MCP / FMS</a>
+                        <table id="FMSPanel" class="table table-bordered infoSmallTable">
+                            <tr>
+                                <td width="33%">TAS<br />
+                                    <span id="valueInfoTAS" data-toggle="tooltip" data-placement="right" title="True Air Speed"></span>
+                                </td>
+                                <td width="33%">IAS<br />
+                                    <span id="valueInfoIAS" data-toggle="tooltip" data-placement="top" title="Indicated Air Speed"></span>
+                                </td>
+                                <td>MACH<br />
+                                    <span id="valueInfoM" data-toggle="tooltip" data-placement="left" title="Mach Number"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>GS<br />
+                                    <span id="valueInfoGS" data-toggle="tooltip" data-placement="right" title="Ground Speed"></span>
+                                </td>
+                                <td>MAG HDG<br />
+                                    <span id="valueInfoMHdg" data-toggle="tooltip" data-placement="top" title="Magnetic Heading"></span>
+                                </td>
+                                <td>BARO<br />
+                                    <span id="valueInfoQnh" data-toggle="tooltip" data-placement="top" title="Barometric Pressure set on Altimeter sub-scale"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MCP ALT<br />
+                                    <span id="valueInfoMCP" data-toggle="tooltip" data-placement="right" title="Boeing Mode Control Panel / Airbus Flight Controllected Altitude"></span>
+                                </td>
+                                <td>FMS ALT<br />
+                                    <span id="valueInfoFMS" data-toggle="tooltip" data-placement="top" title="Flight Management System Selected Altitude"></span>
+                                </td>
+                                <td>TGT HDG<br />
+                                    <span id="valueInfoTHDG" data-toggle="tooltip" data-placement="top" title="Target Heading Angle provides aircraft’s intended or selected heading (BDS6,2)"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>TGT TRK<br />
+                                    <span id="valueInfoTTRK" data-toggle="tooltip" data-placement="right" title="Target Track Angle provides aircraft’s intended or selected) track (BDS6,2)"></span>
+                                </td>
+                                <td>TCAS<br />
+                                    <span id="valueInfoTCAS" data-toggle="tooltip" data-placement="top" title="Traffic alert and Collision Aviodance System is operational or not"></span>
+                                </td>
+                                <td>A/P<br />
+                                    <span id="valueInfoAP" data-toggle="tooltip" data-placement="top" title="Autopilot system is engaged or not"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>VNAV<br />
+                                    <span id="valueInfoVNAV" data-toggle="tooltip" data-placement="right" title="Vertical Navigation Mode is active or not"></span>
+                                </td>
+                                <td>ALT HLD<br />
+                                    <span id="valueInfoAHOLD" data-toggle="tooltip" data-placement="top" title="Altitude Hold Mode is active or not"></span>
+                                </td>
+                                <td>APP<br />
+                                    <span id="valueInfoAPPR" data-toggle="tooltip" data-placement="top" title="Approach Mode is active or not"></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr class="callsign-hl">
+                    <td class="infoWindowSpacing" colspan="2"></td>
+                </tr>
+                <tr>
+                    <td>LAT<br /><span id="valueInfoLat"></span></td>
+                    <td>LON<br /><span id="valueInfoLon"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="nopadding">
+                        <table class="table table-bordered infoSmallTable">
+                            <tr>
+                                <td width="33%">SEEN<br />
+                                    <span id="valueInfoSeen" data-toggle="tooltip" data-placement="right" title="Seen Count"></span>
+                                </td>
+                                <td width="33%">MSGS<br />
+                                    <span id="valueInfoMessages" data-toggle="tooltip" data-placement="top" title="Messages Number"></span>
+                                </td>
+                                <td width="33%">SGL<br />
+                                    <span id="valueInfoLevel" data-toggle="tooltip" data-placement="left" title="Signal Level"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>WDIR<br />
+                                    <span id="valueInfoWDIR" data-toggle="tooltip" data-placement="right" title="Wind Direction"></span>
+                                </td>
+                                <td>WSPD<br />
+                                    <span id="valueInfoWSPD" data-toggle="tooltip" data-placement="top" title="Wind Speed"></span>
+                                </td>
+                                <td>TEMP<br />
+                                    <span id="valueInfoTEMP" data-toggle="tooltip" data-placement="left" title="Temperature"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>AZ<br />
+                                    <span id="valueInfoAzimuth" data-toggle="tooltip" data-placement="right" title="Azimuth of target"></span>
+                                </td>
+                                <td>DIST<br />
+                                    <span id="valueInfoDistance" data-toggle="tooltip" data-placement="top" title="Distance to target"></span>
+                                </td>
+                                <td>II/SI CODE<br />
+                                    <span id="valueInfoIC" data-toggle="tooltip" data-placement="left" title="Interrogator Code"></span>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table table-bordered infoSourceIDTable">
+                            <tr>
+                                <td>SOURCE ID <br />
+                                    <span id="valueSourceID" data-toggle="tooltip" data-placement="right" title="Feed source ID"></span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-bordered infoTable" style="margin-bottom: 0px;">
+                            <tr>
+                                <td class="infoWindowSpacing"></td>
+                            </tr>
+                        </table>
+
+                        <div data-toggle="buttons" class="btn-group btn-group-justified">
+                            <a class="btn btn-default btn-sm btn-xs" href="#" role="button" id="fgraphicButton" style="width: 40%;">FLIGHT GRAPH</a>
+                            <a class="btn btn-default btn-sm btn-xs" href="#" role="button" id="saveFlightGraphic" style="width: 60%;">KEEP GRAPH (OFF)</a>
+                        </div>
+
+                        <table class="table table-bordered infoTable" style="margin-bottom: 0px;">
+                            <tr class="callsign-hl">
+                                <td class="infoWindowSpacing" colspan="2"></td>
+                            </tr>
+                        </table>
+
+                        <div data-toggle="buttons" class="btn-group btn-group-justified">
+                            <a class="btn btn-default btn-sm btn-xs" href="#" role="button" id="openFlightDesk">FLIGHT DECK PANEL</a>
+                        </div>
+
+                        <table class="table table-bordered infoTable" style="margin-bottom: 0px;">
+                            <tr>
+                                <td class="infoWindowSpacing"></td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!--/.container-->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/js/jquery-3.5.1.min.js"></script>
+    <script src="/js/jquery.cookie.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap-select.min.js"></script>
+
+    <script src="/js/jQueryRotateCompressed.2.3.js"></script>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <script src="https://code.highcharts.com/modules/data.js"></script>
+    <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+    <script src="https://code.highcharts.com/modules/heatmap.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+    <script src="/js/highcharts-downsample.js"></script>
+
+    <script src="/js/rpc.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="/js/app.js"></script>
+
+    <script type="text/javascript">
+        var dependentLibs = ["/js/markerwithlabel_packed.js", "/js/richmarker-compiled.js"];
+
+        function onMapLoad() {
+            for (var i = 0; i < dependentLibs.length; i++) {
+                var element = $("<script>");
+                $(element).attr("type", "text/javascript");
+                $(element).attr("src", dependentLibs[i]);
+                $('body').append(element);
+                $("#posModalWindow").draggable({
+                    cursor: 'move'
+                });
+            }
+            // loading and starting Application instance
+            $.ajax({
+                url: "/js/app-instance.js",
+                cache: true,
+                dataType: "script"
+            }).done(function() {
+                var app = new Application();
+                $('[data-toggle="tooltip"]').tooltip();
+                $('.selectpicker').selectpicker();
+            }).fail(function() {
+                alert("Unable to load local-app.js");
+            });
+        }
+
+        function injectGMapsLib(key) {
+            var scriptElement = $("<script>");
+            $(scriptElement).attr("type", "text/javascript");
+            var libUrl = "https://maps.googleapis.com/maps/api/js?libraries=geometry&v=3.exp&callback=onMapLoad";
+            if (key != null)
+                libUrl += "&key=" + key;
+            $(scriptElement).attr("src", libUrl);
+            $(scriptElement).attr("id", "gmapsScript");
+
+            $('body').append(scriptElement);
+        }
+
+        function tryStart() {
+            RpcCall("googleKey", {}, function(resp) {
+                injectGMapsLib(resp.key);
+            }, function(msg) {
+                injectGMapsLib(null); // run keyless
+            });
+        }
+        tryStart();
+    </script>
+</body>
+</html>
